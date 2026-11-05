@@ -27,6 +27,6 @@ export class Controls extends Phaser.Scene {
         return this.cursors.up.space.isDown;
     }
 // How to use inside a scene:
-// create() { this.controls = new GlobalControls(this); }
+// create() { this.controls = new Controls(this); }
 // update() { if (this.controls.getLeft()) { player.moveLeft(); } }
 }
