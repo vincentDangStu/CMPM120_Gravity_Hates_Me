@@ -17,7 +17,7 @@ const config = {
     },
     pixelArt: true,
     scene: [
-        Start
+        Start,Level1,Level2
     ],
     scale: {
         mode: Phaser.Scale.FIT,
