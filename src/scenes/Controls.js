@@ -1,10 +1,10 @@
-export class Controls extends Phaser.Scene {
+export class Controls {
     constructor(scene) {
 
         this.scene = scene;
 
-        this.arrowKeys = scene.input.keyboard.createCursorKeys();
-        this.wasdKeys = scene.input.keyboard.addKeys('W,A,S,D');
+        this.cursors = scene.input.keyboard.createCursorKeys();
+        this.wasd = scene.input.keyboard.addKeys('W,A,S,D,SPACE');
     }
 
     getLeft() {
@@ -24,9 +24,9 @@ export class Controls extends Phaser.Scene {
     }
 
     getJump() {
-        return this.cursors.up.space.isDown;
+        return this.cursors.space.isDown || this.cursors.up.isDown || this.wasd.W.isDown || this.wasd.SPACE.isDown;
     }
 // How to use inside a scene:
-// create() { this.controls = new GlobalControls(this); }
+// create() { this.controls = new Controls(this); }
 // update() { if (this.controls.getLeft()) { player.moveLeft(); } }
 }

@@ -1,3 +1,4 @@
+import { Controls } from './Controls.js';
 export class Level1 extends Phaser.Scene {
 
     constructor() {
@@ -11,13 +12,25 @@ export class Level1 extends Phaser.Scene {
 
     create() {
         this.background = this.add.sprite(640, 320, 'background');
+        this.controls = new Controls(this);
         this.last_time = 0;
     }
 
     update(time) {
         let dt = (time - this.last_time)/1000;
         this.last_time = time;
-        
+        if (this.controls.getLeft()) 
+        {
+            this.player.x -= this.player.speed * dt;
+        }
+        if (this.controls.getRight())
+        {
+            this.player.x += this.player.speed * dt;
+        }
+        if (this.controls.getJump())
+        {
+            this.player.y -= this.player.jumpSpeed * dt;
+        }
     }
     
 }
