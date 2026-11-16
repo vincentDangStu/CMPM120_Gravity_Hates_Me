@@ -1,4 +1,5 @@
 import { Start } from './scenes/Start.js';
+import { Level1 } from './scenes/Level1.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -17,7 +18,7 @@ const config = {
     },
     pixelArt: true,
     scene: [
-        Start
+        Start, Level1
     ],
     scale: {
         mode: Phaser.Scale.FIT,
