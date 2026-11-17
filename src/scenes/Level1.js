@@ -5,6 +5,12 @@ export class Level1 extends Phaser.Scene {
         super('Level1');
     }
 
+    init(data) {
+        this.completed = false;
+        this.restarting = false;
+        this.coinsCollected = 0;
+    }
+
     preload() {
         this.load.tilemapTiledJSON('level1map', 'assets/level1/level1map.tmj');
         this.load.image('level1tiles', 'assets/level1/monochrome_tilemap_transparent_packed.png');
@@ -12,9 +18,8 @@ export class Level1 extends Phaser.Scene {
             frameWidth: 16, frameHeight: 16
         });
 
-        // this.load.audio('jumpSFX', 'assets/level2/jump.wav');
-        // this.load.audio('coinSFX', 'assets/level2/coin.wav');
-        // this.load.audio('hazardSFX', 'assets/level2/hazard.wav');
+        this.load.audio('jumpSFX', 'assets/level1/jump.wav');
+        this.load.audio('coinSFX', 'assets/level1/coin.wav');
     }
 
     create() {
@@ -28,14 +33,6 @@ export class Level1 extends Phaser.Scene {
         this.map.createLayer('player', tileset).setVisible(false);
         this.ground.setCollisionByExclusion([-1]);
         this.platforms.setCollisionByExclusion([-1]);
-
-        const ladderTiles = this.map.getObjectLayer('ladders').objects;
-        for (const ladderTile of ladderTiles) {
-            const ladder = this.ladders.create(ladderTile.x + 8, ladderTile.y - 8, 'level1sprites', ladderTile.gid - 1);
-            ladder.setSize(ladderTile.width, ladderTile.height);
-            ladder.setDepth(3);
-        }
-
 
         const playerTile = this.map.findByIndex(241, 0, false, 'player');
         if (!playerTile) {
@@ -68,12 +65,63 @@ export class Level1 extends Phaser.Scene {
         this.controls = new Controls(this);
         this.last_time = 0;
 
+
+        const ladderTiles = this.map.getObjectLayer('ladders').objects;
+        for (const ladderTile of ladderTiles) {
+            const ladder = this.ladders.create(ladderTile.x + 8, ladderTile.y - 8, 'level1sprites', ladderTile.gid - 1);
+            ladder.setSize(ladderTile.width, ladderTile.height);
+            ladder.setDepth(3);
+        }
+
+        this.coins = this.physics.add.staticGroup();
+        const coinLayer = this.map.getObjectLayer('collectibles');
+        for (const item of coinLayer.objects) {
+            const coin = this.coins.create(item.x + 8, item.y - 8, 'level1sprites', item.gid - 1);
+            coin.setDepth(7);
+            coin.refreshBody();
+        }
+        this.totalCoins = coinLayer.objects.length;
+        this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
+        
+        this.jumpParticles = this.add.particles(0, 0, 'level1sprites', {
+            frame: 0, speed: {min: 20, max: 65}, lifespan: 270,
+            scale: {start: 0.65, end: 0}, gravityY: 100, emitting: false
+        }).setDepth(12);
+        this.coinParticles = this.add.particles(0, 0, 'level1sprites', {
+            frame: 2, speed: {min: 35, max: 110}, lifespan: 350,
+            scale: {start: 0.85, end: 0}, gravityY: 70, emitting: false
+        }).setDepth(12);
+
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.setZoom(3.2);
         this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
         this.cameras.main.setBackgroundColor('#121925');
         this.uiCamera = this.cameras.add(0, 0, 1280, 720);
         this.uiCamera.ignore(this.children.list.slice());
+
+        this.coinDisplay = this.add.text(28, 25, `Coins: 0 / ${this.totalCoins}`, {
+            fontFamily: 'monospace', fontSize: '32px', color: '#ffffff',
+            stroke: '#121925', strokeThickness: 5
+        }).setScrollFactor(0).setDepth(100);
+        this.cameras.main.ignore(this.coinDisplay);
+        this.helpDisplay = this.add.text(760, 30, 'R: Restart    M: Menu', {
+            fontFamily: 'monospace', fontSize: '22px', color: '#ffffff',
+            stroke: '#121925', strokeThickness: 4
+        }).setScrollFactor(0).setDepth(100);
+        this.cameras.main.ignore(this.helpDisplay);
+        this.input.keyboard.on('keydown-R', () => this.scene.restart());
+        this.input.keyboard.on('keydown-M', () => this.scene.start('Start'));
+    }
+
+    collectCoin(player, coin) {
+        if (!coin.active || this.completed || this.restarting) {
+            return;
+        }
+        this.coinsCollected++;
+        this.coinDisplay.setText(`Coins: ${this.coinsCollected} / ${this.totalCoins}`);
+        this.coinParticles.emitParticleAt(coin.x, coin.y, 10);
+        this.sound.play('coinSFX', {volume: 0.45});
+        coin.disableBody(true, true);
     }
 
     update() {
@@ -117,11 +165,35 @@ export class Level1 extends Phaser.Scene {
         if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
         {
             this.player.setVelocityY(-this.jumpVelocity);
-            // this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
-            // this.sound.play('jumpSFX', {volume: 0.4});
+            this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
+            this.sound.play('jumpSFX', {volume: 0.4});
         }
         this.jumpHeld = wantsJump;
         this.player.onLadder = false;
     }
-    
+
+    completeLevel() {
+        if (this.completed || this.restarting) {
+            return;
+        }
+        this.completed = true;
+        this.player.setAcceleration(0, 0);
+        this.player.setVelocity(0, 0);
+        this.physics.pause();
+        const overlay = this.add.rectangle(640, 360, 1280, 720, 0x121925, 0.92)
+            .setScrollFactor(0).setDepth(150);
+        this.cameras.main.ignore(overlay);
+        const heading = this.add.text(640, 230, 'LEVEL 1 COMPLETE!', {
+            fontFamily: 'monospace', fontSize: '62px', color: '#ffffff'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(151);
+        this.cameras.main.ignore(heading);
+        const result = this.add.text(640, 345, `Coins collected: ${this.coinsCollected} / ${this.totalCoins}`, {
+            fontFamily: 'monospace', fontSize: '40px', color: '#ffffff'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(151);
+        this.cameras.main.ignore(result);
+        const options = this.add.text(640, 475, 'Press R to replay or M for menu', {
+            fontFamily: 'monospace', fontSize: '28px', color: '#ffffff'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(151);
+        this.cameras.main.ignore(options);
+    }
 }
