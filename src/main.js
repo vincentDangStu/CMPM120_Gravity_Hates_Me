@@ -1,5 +1,6 @@
 import { Start } from './scenes/Start.js';
 import { Level1 } from './scenes/Level1.js';
+import { Level2 } from './scenes/Level2.js';
 
 const config = {
     type: Phaser.AUTO,

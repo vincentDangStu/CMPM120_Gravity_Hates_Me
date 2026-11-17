@@ -29,8 +29,5 @@ export class Start extends Phaser.Scene {
         this.input.keyboard.on('keydown-NUMPAD_TWO', () => this.scene.start('Level2'));
     }
 
-    update() {
-        
-    }
     
 }
