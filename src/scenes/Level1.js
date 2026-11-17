@@ -23,12 +23,19 @@ export class Level1 extends Phaser.Scene {
         this.map.createLayer('background', tileset).setDepth(0);
         this.ground = this.map.createLayer('terrain', tileset).setDepth(1);
         this.platforms = this.map.createLayer('platforms', tileset).setDepth(2);
-        this.ladders = this.map.createLayer('ladders', tileset).setDepth(3);
+        this.ladders = this.physics.add.staticGroup();
         this.map.createLayer('decorations', tileset).setDepth(4);
         this.map.createLayer('player', tileset).setVisible(false);
         this.ground.setCollisionByExclusion([-1]);
         this.platforms.setCollisionByExclusion([-1]);
-        this.ladders.setCollisionByExclusion([-1]);
+
+        const ladderTiles = this.map.getObjectLayer('ladders').objects;
+        for (const ladderTile of ladderTiles) {
+            const ladder = this.ladders.create(ladderTile.x + 8, ladderTile.y - 8, 'level1sprites', ladderTile.gid - 1);
+            ladder.setSize(ladderTile.width, ladderTile.height);
+            ladder.setDepth(3);
+        }
+
 
         const playerTile = this.map.findByIndex(241, 0, false, 'player');
         if (!playerTile) {
@@ -44,12 +51,18 @@ export class Level1 extends Phaser.Scene {
         this.player.setDragX(2500);
         this.player.setCollideWorldBounds(true);
         this.player.setData('health', 1);
+        this.player.acceleration = 1850;
+        this.player.climbSpeed = 150;
+        this.player.isClimbing = false;
+        this.player.onLadder = false;
+
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.physics.add.collider(this.player, this.ground);
         this.physics.add.collider(this.player, this.platforms, null, (player, tile) => {
             return player.body.velocity.y >= 0 && player.body.prev.y + player.body.height <= tile.getTop() + 5;
         });
 
+        this.physics.add.overlap(this.player, this.ladders, () => {this.player.onLadder = true;}, null, this);
         this.jumpHeld = false;
         this.jumpVelocity = Math.sqrt(2 * 850 * 64);
         this.controls = new Controls(this);
@@ -67,15 +80,39 @@ export class Level1 extends Phaser.Scene {
         const wantsJump = this.controls.getJump();
         if (this.controls.getLeft() && !this.controls.getRight()) 
         {
-            this.player.setAccelerationX(-1850);
+            this.player.setAccelerationX(-this.player.acceleration);
         } else if (this.controls.getRight() && !this.controls.getLeft()) 
         {
-            this.player.setAccelerationX(1850);
+            this.player.setAccelerationX(this.player.acceleration);
         } else 
         {
             this.player.setAccelerationX(0);
         }
+        
+        if (this.player.onLadder && (this.controls.getUp() || this.controls.getDown()))
+        {
+            this.player.isClimbing = true;
+        } else {
+            this.player.isClimbing = false;
+            this.player.body.setAllowGravity(true);
+        }
 
+        if (this.player.isClimbing)
+        {
+            this.player.body.setAllowGravity(false);
+            if (this.controls.getUp()) 
+            {
+                this.player.setVelocityY(-this.player.climbSpeed);
+            } else if (this.controls.getDown()) 
+            {
+                this.player.setVelocityY(this.player.climbSpeed);
+            } else {
+                this.player.setVelocityY(0);
+            }
+        } else {
+            this.player.body.setAllowGravity(true);
+            this.player.isClimbing = false;
+        }
 
         if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
         {
@@ -84,6 +121,7 @@ export class Level1 extends Phaser.Scene {
             // this.sound.play('jumpSFX', {volume: 0.4});
         }
         this.jumpHeld = wantsJump;
+        this.player.onLadder = false;
     }
     
 }
