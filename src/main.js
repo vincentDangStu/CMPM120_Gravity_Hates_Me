@@ -1,4 +1,5 @@
 import { Start } from './scenes/Start.js';
+import { Level1 } from './scenes/Level1.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -12,7 +13,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: {y: 300},
-            debug: true
+            debug: false
         }
     },
     pixelArt: true,
