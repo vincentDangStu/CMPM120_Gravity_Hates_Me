@@ -52,6 +52,7 @@ export class Level1 extends Phaser.Scene {
         this.player.climbSpeed = 150;
         this.player.isClimbing = false;
         this.player.onLadder = false;
+        this.player.onExit = false;
 
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.physics.add.collider(this.player, this.ground);
@@ -82,7 +83,13 @@ export class Level1 extends Phaser.Scene {
         }
         this.totalCoins = coinLayer.objects.length;
         this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
-        
+
+        const exitObject = this.map.getObjectLayer('level_exit').objects[0];
+        this.exitZone = this.add.zone(exitObject.x + exitObject.width / 2,
+            exitObject.y + exitObject.height / 2, exitObject.width, exitObject.height);
+        this.physics.add.existing(this.exitZone, true);
+        this.physics.add.overlap(this.player, this.exitZone, () => {this.player.onExit = true;}, null, this);
+
         this.jumpParticles = this.add.particles(0, 0, 'level1sprites', {
             frame: 0, speed: {min: 20, max: 65}, lifespan: 270,
             scale: {start: 0.65, end: 0}, gravityY: 100, emitting: false
@@ -124,54 +131,6 @@ export class Level1 extends Phaser.Scene {
         coin.disableBody(true, true);
     }
 
-    update() {
-        const wantsJump = this.controls.getJump();
-        if (this.controls.getLeft() && !this.controls.getRight()) 
-        {
-            this.player.setAccelerationX(-this.player.acceleration);
-        } else if (this.controls.getRight() && !this.controls.getLeft()) 
-        {
-            this.player.setAccelerationX(this.player.acceleration);
-        } else 
-        {
-            this.player.setAccelerationX(0);
-        }
-        
-        if (this.player.onLadder && (this.controls.getUp() || this.controls.getDown()))
-        {
-            this.player.isClimbing = true;
-        } else {
-            this.player.isClimbing = false;
-            this.player.body.setAllowGravity(true);
-        }
-
-        if (this.player.isClimbing)
-        {
-            this.player.body.setAllowGravity(false);
-            if (this.controls.getUp()) 
-            {
-                this.player.setVelocityY(-this.player.climbSpeed);
-            } else if (this.controls.getDown()) 
-            {
-                this.player.setVelocityY(this.player.climbSpeed);
-            } else {
-                this.player.setVelocityY(0);
-            }
-        } else {
-            this.player.body.setAllowGravity(true);
-            this.player.isClimbing = false;
-        }
-
-        if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
-        {
-            this.player.setVelocityY(-this.jumpVelocity);
-            this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
-            this.sound.play('jumpSFX', {volume: 0.4});
-        }
-        this.jumpHeld = wantsJump;
-        this.player.onLadder = false;
-    }
-
     completeLevel() {
         if (this.completed || this.restarting) {
             return;
@@ -196,4 +155,56 @@ export class Level1 extends Phaser.Scene {
         }).setOrigin(0.5).setScrollFactor(0).setDepth(151);
         this.cameras.main.ignore(options);
     }
+
+    update() {
+        if (this.player.onExit && this.controls.getUp()) {
+            this.completeLevel();
+        }
+
+        if (this.complete || this.restarting) {
+            return;
+        }
+
+        if (this.controls.getLeft() && !this.controls.getRight()) 
+        {
+            this.player.setAccelerationX(-this.player.acceleration);
+        } else if (this.controls.getRight() && !this.controls.getLeft()) 
+        {
+            this.player.setAccelerationX(this.player.acceleration);
+        } else 
+        {
+            this.player.setAccelerationX(0);
+        }
+        
+        if (this.player.onLadder && (this.controls.getUp()))
+        {
+            this.player.isClimbing = true;
+        } else {
+            this.player.isClimbing = false;
+            this.player.body.setAllowGravity(true);
+        }
+
+        if (this.player.isClimbing)
+        {
+            this.player.body.setAllowGravity(false);
+            if (this.controls.getUp()) 
+            {
+                this.player.setVelocityY(-this.player.climbSpeed);
+            } else {
+                this.player.setVelocityY(0);
+            }
+        }
+
+        const wantsJump = this.controls.getJump();
+        if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
+        {
+            this.player.setVelocityY(-this.jumpVelocity);
+            this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
+            this.sound.play('jumpSFX', {volume: 0.4});
+        }
+        this.jumpHeld = wantsJump;
+        this.player.onLadder = false;
+    }
+
+
 }
