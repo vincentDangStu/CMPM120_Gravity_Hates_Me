@@ -59,6 +59,7 @@ export class Level1 extends Phaser.Scene {
         this.player.onExit = false;
         this.player.onPlatform = false;
         this.player.onTerrain = false;
+        this.player.coyoteTime = 0;
 
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.physics.add.collider(this.player, this.terrain, () => {this.player.onTerrain = true;}, null, this);
@@ -170,7 +171,7 @@ export class Level1 extends Phaser.Scene {
         this.cameras.main.ignore(options);
     }
 
-    update() {
+    update(time, delta) {
         if (this.player.onExit && this.controls.getUp()) 
         {
             this.completeLevel();
@@ -217,13 +218,31 @@ export class Level1 extends Phaser.Scene {
             this.time.delayedCall(200, () => {this.player.body.checkCollision.down = true;}, null, this);
         }
 
-
         const wantsJump = this.controls.getJump();
-        if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
+        if (wantsJump && !this.jumpHeld && this.grounded) 
         {
             this.player.setVelocityY(-this.jumpVelocity);
             this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
             this.sound.play('jumpSFX', {volume: 0.4});
+        }
+
+        if (!this.player.body.blocked.down)
+        {
+            if (this.coyote)
+            {
+                if (time - this.coyote_start > 200)
+                    this.grounded = false;
+            }
+            else
+            {
+                this.coyote = true;
+                this.coyote_start = time;
+            }
+        }
+        else
+        {
+            this.coyote = false;
+            this.grounded = true;
         }
 
         this.jumpHeld = wantsJump;

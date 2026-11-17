@@ -20,7 +20,10 @@ export class Start extends Phaser.Scene {
         this.add.text(640, 385, 'Press 1 to play Level 1', {
             fontFamily: 'monospace', fontSize: '23px', color: '#b3c4cf'
         }).setOrigin(0.5);
-        this.add.text(640, 475, 'Move: A / D or Left / Right    Jump: W / Up / Space', {
+        this.add.text(640, 475, 'Move: A / D or Left / Right    Jump: Space', {
+            fontFamily: 'monospace', fontSize: '23px', color: '#ffffff'
+        }).setOrigin(0.5);
+        this.add.text(640, 520, 'Interact / Climb: W / Up    Drop: S / Down', {
             fontFamily: 'monospace', fontSize: '23px', color: '#ffffff'
         }).setOrigin(0.5);
         this.input.keyboard.on('keydown-ONE', () => this.scene.start('Level1'));
