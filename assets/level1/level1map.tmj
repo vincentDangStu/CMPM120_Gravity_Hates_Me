@@ -1849,6 +1849,28 @@
                  "width":16,
                  "x":352,
                  "y":48
+                }, 
+                {
+                 "height":16,
+                 "id":131,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#ffffff",
+                     "fontfamily":"Courier",
+                     "halign":"center",
+                     "pixelsize":8,
+                     "text":"Leave?",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":48,
+                 "x":336,
+                 "y":48
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1968,7 +1990,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":131,
+ "nextobjectid":132,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

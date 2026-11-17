@@ -102,7 +102,19 @@ export class Level1 extends Phaser.Scene {
         this.exitZone = this.add.zone(exitObject.x + exitObject.width / 2,
             exitObject.y + exitObject.height / 2, exitObject.width, exitObject.height);
         this.physics.add.existing(this.exitZone, true);
-        this.physics.add.overlap(this.player, this.exitZone, () => {this.player.onExit = true;}, null, this);
+        this.exitText = this.add.text(this.exitZone.x - 20, this.exitZone.y - 10, 'Press UP to exit', 
+            {
+                fontFamily: 'monospace', 
+                fontSize: '23px', 
+                color: '#ffffff',
+            }).setOrigin(0.5).setDepth(100);
+        this.exitText.setScale(0.5).setDepth(100);
+        this.exitText.setVisible(false);
+        this.physics.add.overlap(this.player, this.exitZone, (time) => {
+            this.player.onExit = true;
+            this.exitText.setVisible(true);
+            this.time.delayedCall(2000, () => {this.exitText.setVisible(false);}, null, this);
+        }, null, this);
 
         this.jumpParticles = this.add.particles(0, 0, 'level1sprites', {
             frame: 0, speed: {min: 20, max: 65}, lifespan: 270,
@@ -229,7 +241,7 @@ export class Level1 extends Phaser.Scene {
         {
             if (this.coyote)
             {
-                if (time - this.coyote_start > 200)
+                if (time - this.coyote_start > 100)
                     this.grounded = false;
             }
             else
@@ -243,11 +255,12 @@ export class Level1 extends Phaser.Scene {
             this.coyote = false;
             this.grounded = true;
         }
-
+        
         this.jumpHeld = wantsJump;
         this.player.onLadder = false;
         this.player.onPlatform = false;
         this.player.onTerrain = false;
+        this.player.onExit = false;
     }
 
 
