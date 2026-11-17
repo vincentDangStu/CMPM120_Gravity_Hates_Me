@@ -26,12 +26,12 @@ export class Level1 extends Phaser.Scene {
         this.map = this.make.tilemap({key: 'level1map'});
         const tileset = this.map.addTilesetImage('Kenney_1bit_platformer_transparent_packed', 'level1tiles');
         this.map.createLayer('background', tileset).setDepth(0);
-        this.ground = this.map.createLayer('terrain', tileset).setDepth(1);
+        this.terrain = this.map.createLayer('terrain', tileset).setDepth(1);
         this.platforms = this.map.createLayer('platforms', tileset).setDepth(2);
         this.ladders = this.physics.add.staticGroup();
         this.map.createLayer('decorations', tileset).setDepth(4);
         this.map.createLayer('player', tileset).setVisible(false);
-        this.ground.setCollisionByExclusion([-1]);
+        this.terrain.setCollisionByExclusion([-1]);
         this.platforms.setCollisionByExclusion([-1]);
 
         const playerTile = this.map.findByIndex(241, 0, false, 'player');
@@ -53,11 +53,13 @@ export class Level1 extends Phaser.Scene {
         this.player.isClimbing = false;
         this.player.onLadder = false;
         this.player.onExit = false;
+        this.player.onPlatform = false;
+        this.player.onTerrain = false;
 
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.physics.add.collider(this.player, this.ground);
+        this.physics.add.collider(this.player, this.terrain, () => {this.player.onTerrain = true;}, null, this);
         this.physics.add.collider(this.player, this.platforms, null, (player, tile) => {
-            return player.body.velocity.y >= 0 && player.body.prev.y + player.body.height <= tile.getTop() + 5;
+            this.player.onPlatform = true; return player.body.velocity.y >= 0 && player.body.prev.y + player.body.height <= tile.getTop() + 5;
         });
 
         this.physics.add.overlap(this.player, this.ladders, () => {this.player.onLadder = true;}, null, this);
@@ -195,6 +197,12 @@ export class Level1 extends Phaser.Scene {
             }
         }
 
+        if (this.controls.getDown() && this.player.onPlatform && !this.player.onTerrain)
+        {
+            this.player.body.checkCollision.down = false;
+            this.time.delayedCall(200, () => {this.player.body.checkCollision.down = true;}, null, this);
+        }
+
         const wantsJump = this.controls.getJump();
         if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
         {
@@ -204,6 +212,8 @@ export class Level1 extends Phaser.Scene {
         }
         this.jumpHeld = wantsJump;
         this.player.onLadder = false;
+        this.player.onPlatform = false;
+        this.player.onTerrain = false;
     }
 
 
