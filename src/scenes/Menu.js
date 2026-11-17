@@ -1,12 +1,7 @@
-export class Start extends Phaser.Scene {
+export class Menu extends Phaser.Scene {
 
     constructor() {
-        super('Start');
-    }
-
-    preload() {
-        this.load.image('background', 'assets/bg.png');
-
+        super('Menu');
     }
 
     create() {

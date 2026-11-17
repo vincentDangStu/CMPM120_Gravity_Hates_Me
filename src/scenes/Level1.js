@@ -143,7 +143,7 @@ export class Level1 extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(100);
         this.cameras.main.ignore(this.helpDisplay);
         this.input.keyboard.on('keydown-R', () => this.scene.restart());
-        this.input.keyboard.on('keydown-M', () => this.scene.start('Start'));
+        this.input.keyboard.on('keydown-M', () => this.scene.start('Menu'));
     }
 
     collectCoin(player, coin) {

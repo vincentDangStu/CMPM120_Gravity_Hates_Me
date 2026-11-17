@@ -1,4 +1,5 @@
-import { Start } from './scenes/Start.js';
+import { Title } from './scenes/Title.js';
+import { Menu } from './scenes/Menu.js';
 import { Level1 } from './scenes/Level1.js';
 import { Level2 } from './scenes/Level2.js';
 
@@ -19,7 +20,7 @@ const config = {
     },
     pixelArt: true,
     scene: [
-        Start,Level1,Level2
+        Title,Menu,Level1,Level2
     ],
     scale: {
         mode: Phaser.Scale.FIT,
