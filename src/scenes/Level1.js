@@ -7,8 +7,8 @@ export class Level1 extends Phaser.Scene {
 
     preload() {
         this.load.tilemapTiledJSON('level1map', 'assets/level1/level1map.tmj');
-        this.load.image('level1tiles', 'assets/level1/monochrome_tilemap.png');
-        this.load.spritesheet('level1sprites', 'assets/level1/monochrome_tilemap.png', {
+        this.load.image('level1tiles', 'assets/level1/monochrome_tilemap_transparent_packed.png');
+        this.load.spritesheet('level1sprites', 'assets/level1/monochrome_tilemap_transparent_packed.png', {
             frameWidth: 16, frameHeight: 16
         });
 
@@ -19,7 +19,7 @@ export class Level1 extends Phaser.Scene {
 
     create() {
         this.map = this.make.tilemap({key: 'level1map'});
-        const tileset = this.map.addTilesetImage('monochrome_tilemap', 'level1tiles');
+        const tileset = this.map.addTilesetImage('Kenney_1bit_platformer_transparent_packed', 'level1tiles');
         this.map.createLayer('background', tileset).setDepth(0);
         this.ground = this.map.createLayer('terrain', tileset).setDepth(1);
         this.platforms = this.map.createLayer('platforms', tileset).setDepth(2);
@@ -30,7 +30,7 @@ export class Level1 extends Phaser.Scene {
         this.platforms.setCollisionByExclusion([-1]);
         this.ladders.setCollisionByExclusion([-1]);
 
-        const playerTile = this.map.findByIndex(240, 0, false, 'player');
+        const playerTile = this.map.findByIndex(241, 0, false, 'player');
         if (!playerTile) {
             throw new Error('Level 1 player tile is missing from the player layer.');
         }
@@ -63,7 +63,7 @@ export class Level1 extends Phaser.Scene {
         this.uiCamera.ignore(this.children.list.slice());
     }
 
-    update(time) {
+    update() {
         const wantsJump = this.controls.getJump();
         if (this.controls.getLeft() && !this.controls.getRight()) 
         {
@@ -80,7 +80,7 @@ export class Level1 extends Phaser.Scene {
         if (wantsJump && !this.jumpHeld && this.player.body.blocked.down) 
         {
             this.player.setVelocityY(-this.jumpVelocity);
-            this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
+            // this.jumpParticles.emitParticleAt(this.player.x, this.player.body.bottom, 8);
             // this.sound.play('jumpSFX', {volume: 0.4});
         }
         this.jumpHeld = wantsJump;
