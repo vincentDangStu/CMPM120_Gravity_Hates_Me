@@ -59,7 +59,6 @@ export class Level1 extends Phaser.Scene {
         this.player.onExit = false;
         this.player.onPlatform = false;
         this.player.onTerrain = false;
-        this.player.coyoteTime = 0;
 
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.physics.add.collider(this.player, this.terrain, () => {this.player.onTerrain = true;}, null, this);
@@ -171,7 +170,7 @@ export class Level1 extends Phaser.Scene {
         this.cameras.main.ignore(options);
     }
 
-    update(time, delta) {
+    update(time) {
         if (this.player.onExit && this.controls.getUp()) 
         {
             this.completeLevel();
