@@ -13,7 +13,7 @@ export class Title extends Phaser.Scene {
             fontFamily: 'monospace', fontSize: '64px', color: '#ffffff'
         }).setOrigin(0.5);
 
-        const startButton = this.add.text(640, 300, 'Start Game', 
+        const startButton = this.add.text(640, 350, 'Start Game', 
         {
             fontFamily: 'monospace', 
             fontSize: '48px', 
@@ -29,22 +29,6 @@ export class Title extends Phaser.Scene {
             0x858383, 
             0.5
         );
-        const levelSelectButton = this.add.text(640, 400, 'Level Select', 
-        {
-            fontFamily: 'monospace',
-            fontSize: '48px',
-            color: '#ffffff',
-            align: 'center',
-            backgroundColor: '#544f4f9f'
-        }).setOrigin(0.5).setInteractive();
-        const levelSelectBorder = this.add.rectangle(
-            levelSelectButton.x, 
-            levelSelectButton.y, 
-            levelSelectButton.width + 20, 
-            levelSelectButton.height + 20, 
-            0x858383, 
-            0.5
-        );
        
 
         startButton.on('pointerover', () => {
@@ -54,16 +38,6 @@ export class Title extends Phaser.Scene {
             startButton.setStyle({ backgroundColor: '#544f4f9f' });
         });
         startButton.on('pointerdown', () => {
-            this.scene.start('Level1');
-        });
-
-        levelSelectButton.on('pointerover', () => {
-            levelSelectButton.setStyle({ backgroundColor: '#bebebe9f' });
-        });
-        levelSelectButton.on('pointerout', () => {
-            levelSelectButton.setStyle({ backgroundColor: '#544f4f9f' });
-        });
-        levelSelectButton.on('pointerdown', () => {
             this.scene.start('Menu');
         });
     }

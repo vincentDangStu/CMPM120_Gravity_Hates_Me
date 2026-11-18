@@ -51,7 +51,6 @@ export class Level1 extends Phaser.Scene {
         this.player.setMaxVelocity(140, 550);
         this.player.setDragX(2500);
         this.player.setCollideWorldBounds(true);
-        this.player.setData('health', 1);
         this.player.acceleration = 1850;
         this.player.climbSpeed = 150;
         this.player.isClimbing = false;

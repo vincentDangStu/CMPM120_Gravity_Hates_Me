@@ -13,6 +13,23 @@ export class Menu extends Phaser.Scene {
             fontFamily: 'monospace', fontSize: '64px', color: '#ffffff'
         }).setOrigin(0.5);
 
+        const backButton = this.add.text(200, 50, 'Back to Title Screen', {
+            fontFamily: 'monospace',
+            fontSize: '32px',
+            color: '#ffffff',
+            align: 'center',
+            backgroundColor: '#544f4f9f'
+        }).setOrigin(0.5).setInteractive();
+        
+        const backButtonBorder = this.add.rectangle(
+            backButton.x,
+            backButton.y,
+            backButton.width + 20,
+            backButton.height + 20,
+            0x858383,
+            0.5
+        );
+
         const level1Button = this.add.text(0, 0, 'Level 1', 
         {
             fontFamily: 'monospace', 
@@ -57,6 +74,16 @@ export class Menu extends Phaser.Scene {
         this.add.text(640, 520, 'Interact/Climb: W / Up    Drop: S / Down', {
             fontFamily: 'monospace', fontSize: '23px', color: '#ffffff'
         }).setOrigin(0.5);
+
+        backButton.on('pointerover', () => {
+            backButton.setStyle({ backgroundColor: '#bebebe9f' });
+        });
+        backButton.on('pointerout', () => {
+            backButton.setStyle({ backgroundColor: '#544f4f9f' });
+        });
+        backButton.on('pointerdown', () => {
+            this.scene.start('Title');
+        });
 
         level1Button.on('pointerover', () => {
             level1Button.setStyle({ backgroundColor: '#bebebe9f' });
