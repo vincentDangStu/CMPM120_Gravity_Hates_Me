@@ -5,12 +5,12 @@ import { Level2 } from './scenes/Level2.js';
 
 const config = {
     type: Phaser.AUTO,
-    title: 'CMPM 120 Project Skeleton',
+    title: 'Gravity Hates Me',
     description: '',
     parent: 'game-container',
     width: 1280,
     height: 720,
-    backgroundColor: '#000000',
+    backgroundColor: '#121925',
     physics: {
         default: 'arcade',
         arcade: {
@@ -29,4 +29,3 @@ const config = {
 }
 
 new Phaser.Game(config);
-            
